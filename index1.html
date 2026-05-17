@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Plush Intentions – Welcome</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, sans-serif;
+      background: #0F0F0F;
+      color: white;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      width: 45%;
+      background: linear-gradient(180deg, #E8A7C8, #F5C15C);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 60px 40px;
+      text-align: center;
+    }
+
+    .left-panel img {
+      width: 200px;
+      margin-bottom: 20px;
+    }
+
+    .left-panel h1 {
+      font-family: "Playfair Display", serif;
+      font-size: 40px;
+      color: #0F0F0F;
+      margin-bottom: 10px;
+    }
+
+    .left-panel p {
+      font-size: 18px;
+      color: #0F0F0F;
+      max-width: 420px;
+      line-height: 1.5;
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      width: 55%;
+      padding: 60px;
+      background: #0F0F0F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #1A1A1A;
+      padding: 40px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 450px;
+      box-shadow: 0 0 20px rgba(245, 193, 92, 0.15);
+      text-align: center;
+    }
+
+    h2 {
+      font-family: "Playfair Display", serif;
+      margin-bottom: 20px;
+      font-size: 28px;
+    }
+
+    .btn {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      margin-top: 20px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #E8A7C8, #F5C15C);
+      color: #0F0F0F;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-outline {
+      background: transparent;
+      border: 2px solid #E8A7C8;
+      color: #E8A7C8;
+    }
+
+    @media (max-width: 900px) {
+      .left-panel { display: none; }
+      .right-panel { width: 100%; padding: 20px; }
+      .card { padding: 25px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <img src="/logo.png" alt="Plush Intentions Logo">
+    <h1>Plush Intentions</h1>
+    <p>Your trusted partner for premium field service professionals.  
+       Join our network or log in to continue.</p>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="card">
+
+      <h2>Welcome</h2>
+      <p style="color:#CCC; margin-bottom:20px;">
+        Choose how you’d like to continue.
+      </p>
+
+      <a href="login.html" class="btn">Technician Login</a>
+      <a href="admin-login.html" class="btn btn-outline">Admin Login</a>
+      <a href="onboarding/step1.html" class="btn">Start Technician Application</a>
+
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
