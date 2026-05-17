@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dispatch Dashboard</title>
+
+<style>
+
+/* RESET */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Inter, sans-serif;
+}
+
+/* FULLSCREEN BACKGROUND PHOTO */
+body {
+  background: url('/background.png') center/cover no-repeat fixed;
+  position: relative;
+  color: #fff;
+  overflow: hidden;
+}
+
+/* DARK OVERLAY FOR CONTRAST */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.45);
+  backdrop-filter: blur(2px);
+  z-index: -1;
+}
+
+/* SIDEBAR */
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  height: 100vh;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(22px);
+  border-right: 1px solid rgba(255,255,255,0.25);
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  z-index: 20;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
+.sidebar h2 {
+  font-size: 22px;
+  margin-bottom: 30px;
+}
+
+.sidebar a {
+  color: #fff;
+  text-decoration: none;
+  opacity: 0.85;
+  margin-bottom: 18px;
+  font-size: 16px;
+}
+
+.sidebar a:hover {
+  opacity: 1;
+}
+
+/* TOP BAR */
+.topbar {
+  position: fixed;
+  top: 0;
+  left: 240px;
+  right: 0;
+  height: 70px;
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(22px);
+  border-bottom: 1px solid rgba(255,255,255,0.25);
+  display: flex;
+  align-items: center;
+  padding: 0 24px;
+  z-index: 19;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
+.topbar h1 {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* MAIN CONTENT */
+.main {
+  position: absolute;
+  top: 70px;
+  left: 240px;
+  right: 0;
+  bottom: 0;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+/* FLOATING CARDS */
+.card {
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(22px);
+  border-radius: 22px;
+  padding: 22px;
+  border: 1px solid rgba(255,255,255,0.25);
+  margin-bottom: 20px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
+/* MODAL OVERLAY */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(4px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.25s ease;
+  z-index: 200;
+}
+
+.modal-overlay.active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* JOB DETAILS MODAL */
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 1000px;
+  max-width: 95%;
+  max-height: 90vh;
+  transform: translate(-50%, -50%) scale(0.92);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(22px);
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 28px;
+  overflow-y: auto;
+  opacity: 0;
+  transition: all 0.25s ease;
+  z-index: 201;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
+.modal.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* CLOSE BUTTON */
+.modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  font-size: 22px;
+  cursor: pointer;
+  opacity: 0.8;
+}
+
+.modal-close:hover {
+  opacity: 1;
+}
+
+/* TIMELINE */
+.timeline {
+  margin: 20px 0;
+  padding-left: 10px;
+  border-left: 2px solid rgba(255,255,255,0.25);
+}
+
+.timeline-item {
+  margin-bottom: 16px;
+  padding-left: 14px;
+  position: relative;
+}
+
+.timeline-item::before {
+  content: "";
+  position: absolute;
+  left: -10px;
+  top: 4px;
+  width: 10px;
+  height: 10px;
+  background: #00eaff;
+  border-radius: 50%;
+}
+
+/* ACTIVITY FEED */
+.activity-feed {
+  margin-top: 20px;
+  max-height: 260px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.activity-item {
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(12px);
+  border-radius: 16px;
+  padding: 14px 18px;
+  margin-bottom: 12px;
+  border: 1px solid rgba(255,255,255,0.25);
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.35s forwards;
+}
+
+.activity-item h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.activity-item p {
+  margin: 4px 0 0 0;
+  opacity: 0.85;
+  font-size: 14px;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ASSIGN TECH MODAL */
+.assign-modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  max-width: 95%;
+  max-height: 80vh;
+  transform: translate(-50%, -50%) scale(0.92);
+  background: rgba(255,255,255,0.12);
+  backdrop-filter: blur(22px);
+  border-radius: 22px;
+  border: 1px solid rgba(255,255,255,0.25);
+  padding: 24px;
+  overflow-y: auto;
+  opacity: 0;
+  transition: all 0.25s ease;
+  z-index: 202;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
+.assign-modal.active {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+  <h2>Dispatch</h2>
+  <a href="#">Dashboard</a>
+  <a href="#">Jobs</a>
+  <a href="#">Technicians</a>
+  <a href="#">Settings</a>
+</div>
+
+<div class="topbar">
+  <h1>Dashboard</h1>
+</div>
+
+<div class="main">
+
+  <div class="card">
+    <h2>Active Jobs</h2>
+    <div id="jobs-list"></div>
+  </div>
+
+  <div class="card">
+    <h2>Technicians</h2>
+    <div id="tech-list"></div>
+  </div>
+
+</div>
+
+<div id="modal-overlay" class="modal-overlay"></div>
+
+<div id="job-modal" class="modal">
+  <div class="modal-close" onclick="closeJobModal()">✕</div>
+
+  <h2 id="job-title">Job Details</h2>
+
+  <div id="job-info"></div>
+
+  <h3>Status Timeline</h3>
+  <div id="timeline" class="timeline"></div>
+
+  <h3>Activity Feed</h3>
+  <div id="activity-feed" class="activity-feed"></div>
+
+  <h3>Technician</h3>
+  <div id="assigned-tech"></div>
+
+  <button onclick="openAssignModal()" style="margin-top:20px;padding:10px 16px;border-radius:10px;border:none;background:#00eaff;color:#000;font-weight:600;cursor:pointer;">
+    Assign Technician
+  </button>
+
+</div>
+
+<div id="assign-modal" class="assign-modal">
+  <div class="modal-close" onclick="closeAssignModal()">✕</div>
+
+  <h2>Assign Technician</h2>
+
+  <div id="assign-tech-list"></div>
+
+</div>
+
+</body>
+</html>
+
+<body>
+
+<div class="sidebar">
+  <h2>Dispatch</h2>
+  <a href="#">Dashboard</a>
+  <a href="#">Jobs</a>
+  <a href="#">Technicians</a>
+  <a href="#">Settings</a>
+</div>
+
+<div class="topbar">
+  <h1>Dashboard</h1>
+</div>
+
+<div class="main">
+
+  <div class="card">
+    <h2>Active Jobs</h2>
+    <div id="jobs-list"></div>
+  </div>
+
+  <div class="card">
+    <h2>Technicians</h2>
+    <div id="tech-list"></div>
+  </div>
+
+</div>
+
+<div id="modal-overlay" class="modal-overlay"></div>
+
+<div id="job-modal" class="modal">
+  <div class="modal-close" onclick="closeJobModal()">✕</div>
+
+  <h2 id="job-title">Job Details</h2>
+
+  <div id="job-info"></div>
+
+  <h3>Status Timeline</h3>
+  <div id="timeline" class="timeline"></div>
+
+  <h3>Activity Feed</h3>
+  <div id="activity-feed" class="activity-feed"></div>
+
+  <h3>Technician</h3>
+  <div id="assigned-tech"></div>
+
+  <button onclick="openAssignModal()" style="margin-top:20px;padding:10px 16px;border-radius:10px;border:none;background:#00eaff;color:#000;font-weight:600;cursor:pointer;">
+    Assign Technician
+  </button>
+
+</div>
+
+<div id="assign-modal" class="assign-modal">
+  <div class="modal-close" onclick="closeAssignModal()">✕</div>
+
+  <h2>Assign Technician</h2>
+
+  <div id="assign-tech-list"></div>
+
+</div>
+
+</body>
+</html>
