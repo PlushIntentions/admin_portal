@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Plush Intentions — Technicians</title>
+
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        background: #f8f5f2; /* pearl */
+        font-family: Arial, sans-serif;
+        color: #2b2b2b;
+    }
+
+    .topbar {
+        width: 100%;
+        padding: 20px;
+        background: #ffffff;
+        border-bottom: 1px solid #e5d8c8; /* champagne gold */
+        font-size: 22px;
+        font-weight: bold;
+        letter-spacing: 0.5px;
+        color: #b08d57; /* champagne gold */
+    }
+
+    .container {
+        padding: 25px;
+    }
+
+    .card {
+        background: #ffffff;
+        border: 1px solid #e8dccc;
+        padding: 20px;
+        border-radius: 14px;
+        margin-bottom: 20px;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    h2, h3 {
+        margin-top: 0;
+        color: #b08d57;
+    }
+
+    .tech {
+        padding: 15px;
+        border: 1px solid #e8dccc;
+        border-radius: 10px;
+        margin-bottom: 12px;
+        background: #fdfbf9;
+    }
+
+    .tech-name {
+        font-weight: bold;
+        color: #b08d57;
+        margin-bottom: 6px;
+    }
+
+    .btn {
+        display: inline-block;
+        padding: 10px 16px;
+        background: #b08d57; /* champagne gold */
+        color: #fff;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: bold;
+        margin-top: 8px;
+        transition: 0.2s;
+    }
+
+    .btn:hover {
+        background: #caa56d;
+    }
+
+    .back {
+        background: #f4d7e6; /* micro pink */
+        color: #b03f6f;
+    }
+
+    .back:hover {
+        background: #f7e1ec;
+    }
+</style>
+
+</head>
+<body>
+
+<div class="topbar">
+    Plush Intentions — Technicians
+</div>
+
+<div class="container">
+
+    <div class="card">
+        <h2>Technician List</h2>
+        <div id="techList">Loading technicians...</div>
+    </div>
+
+    <div class="card">
+        <h3>Navigation</h3>
+        <a class="btn back" href="dashboard.html">Back to Dashboard</a>
+    </div>
+
+</div>
+
+<script>
+/* ---------------------------
+   AUTH CHECK
+---------------------------- */
+function checkAuth() {
+    const loggedIn = localStorage.getItem("adminLoggedIn");
+    if (!loggedIn) {
+        window.location.href = "index.html";
+    }
+}
+checkAuth();
+
+/* ---------------------------
+   LOAD TECHNICIANS (STATIC PLACEHOLDER)
+   Replace with Supabase or ClickUp later
+---------------------------- */
+function loadTechnicians() {
+    const techs = [
+        { name: "Sarah Johnson", email: "sarah@example.com", phone: "555-1234" },
+        { name: "Mike Carter", email: "mike@example.com", phone: "555-5678" },
+        { name: "Jasmine Lee", email: "jasmine@example.com", phone: "555-9012" }
+    ];
+
+    let html = "";
+
+    techs.forEach((t, index) => {
+        html += `
+            <div class="tech">
+                <div class="tech-name">${t.name}</div>
+                <div>Email: ${t.email}</div>
+                <div>Phone: ${t.phone}</div>
+                <a class="btn" onclick="openTech(${index})">View Details</a>
+            </div>
+        `;
+    });
+
+    document.getElementById("techList").innerHTML = html;
+}
+
+/* ---------------------------
+   OPEN TECHNICIAN DETAILS
+---------------------------- */
+function openTech(index) {
+    const techs = [
+        { name: "Sarah Johnson", email: "sarah@example.com", phone: "555-1234", location: "Houston, TX", radius: 15, status: "Active" },
+        { name: "Mike Carter", email: "mike@example.com", phone: "555-5678", location: "Katy, TX", radius: 20, status: "Active" },
+        { name: "Jasmine Lee", email: "jasmine@example.com", phone: "555-9012", location: "Pearland, TX", radius: 10, status: "Onboarding" }
+    ];
+
+    const t = techs[index];
+
+    localStorage.setItem("techName", t.name);
+    localStorage.setItem("techEmail", t.email);
+    localStorage.setItem("techPhone", t.phone);
+    localStorage.setItem("techLocation", t.location);
+    localStorage.setItem("techRadius", t.radius);
+    localStorage.setItem("techStatus", t.status);
+
+    window.location.href = "technician-details.html";
+}
+
+loadTechnicians();
+</script>
+
+</body>
+</html>
