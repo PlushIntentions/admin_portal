@@ -23,14 +23,14 @@ body {
   overflow: hidden;
 }
 
-/* DARK OVERLAY */
+/* DARK OVERLAY BEHIND EVERYTHING */
 body::before {
   content: "";
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.45);
   backdrop-filter: blur(2px);
-  z-index: -1;
+  z-index: -10; /* FIX: push overlay behind all UI */
 }
 
 /* UNIVERSAL GLASS PANEL STYLE */
@@ -39,11 +39,12 @@ body::before {
 .card,
 .modal,
 .assign-modal {
-  background: rgba(255,255,255,0.22); /* updated opacity */
+  background: rgba(255,255,255,0.32); /* FIX: stronger opacity */
   backdrop-filter: blur(22px);
   border: 1px solid rgba(255,255,255,0.28);
   border-radius: 22px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+  z-index: 20; /* FIX: ensure panels float above background */
 }
 
 /* SIDEBAR */
@@ -56,7 +57,6 @@ body::before {
   padding: 24px;
   display: flex;
   flex-direction: column;
-  z-index: 20;
 }
 
 .sidebar h2 {
@@ -86,17 +86,12 @@ body::before {
   display: flex;
   align-items: center;
   padding: 0 24px;
-  z-index: 19;
 }
 
-.topbar h1 {
-  font-size: 22px;
-  font-weight: 600;
-}
-
-/* MAIN CONTENT */
+/* MAIN CONTENT PANEL */
 .main {
-  position: absolute;
+  position: relative;
+  z-index: 30; /* FIX: main panel always above background */
   top: 70px;
   left: 240px;
   right: 0;
@@ -196,7 +191,7 @@ body::before {
 }
 
 .activity-item {
-  background: rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.22);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   padding: 14px 18px;
@@ -205,18 +200,6 @@ body::before {
   opacity: 0;
   transform: translateY(10px);
   animation: fadeInUp 0.35s forwards;
-}
-
-.activity-item h4 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.activity-item p {
-  margin: 4px 0 0 0;
-  opacity: 0.85;
-  font-size: 14px;
 }
 
 @keyframes fadeInUp {
@@ -314,9 +297,11 @@ body::before {
 </html>
 <script>
 
-const SUPABASE_URL = window.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_ANON_KEY = window.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const MAPBOX_TOKEN = window.NEXT_PUBLIC_MAPBOX_TOKEN;
+
+const SUPABASE_URL = "https://gsneugdwoxpibajghwge.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzbmV1Z2R3b3hwaWJhamdod2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNjk2NjUsImV4cCI6MjA5Mzg0NTY2NX0.wmZDgY_fAfeiDlZzWLA4KT5_dlbyG7Ns1W4z_HZH8Ws";
+const MAPBOX_TOKEN = "sk.eyJ1IjoicGx1c2gtaW50ZW50aW9ucyIsImEiOiJjbW9ocHBuZnQwNGJuMnBwdmg3eWpxcDNrIn0.2LdI9gv7-QqH5rmSpQ4mcQ
+";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 mapboxgl.accessToken = MAPBOX_TOKEN;
