@@ -23,7 +23,7 @@ body {
   overflow: hidden;
 }
 
-/* DARK OVERLAY BEHIND EVERYTHING */
+/* DARK OVERLAY */
 body::before {
   content: "";
   position: fixed;
@@ -33,14 +33,13 @@ body::before {
   z-index: -10;
 }
 
-/* GLASS PANELS — MORE TRANSPARENT */
+/* GLASS STYLE — MORE SEE THROUGH */
 .glass {
-  background: rgba(255,255,255,0.14); /* MORE SEE-THROUGH */
+  background: rgba(255,255,255,0.12); /* MORE TRANSPARENT */
   backdrop-filter: blur(22px);
-  border: 1px solid rgba(255,255,255,0.20);
+  border: 1px solid rgba(255,255,255,0.18);
   border-radius: 22px;
   box-shadow: 0 6px 28px rgba(0,0,0,0.28);
-  z-index: 20;
 }
 
 /* SIDEBAR */
@@ -53,6 +52,7 @@ body::before {
   padding: 24px;
   display: flex;
   flex-direction: column;
+  z-index: 20;
 }
 .sidebar h2 {
   font-size: 22px;
@@ -82,11 +82,12 @@ body::before {
   justify-content: flex-end;
   padding: 0 24px;
   font-size: 18px;
+  z-index: 20;
 }
 
-/* MAIN PANEL — ONLY ONE AT A TIME */
+/* MAIN PANEL — FULL SCREEN */
 .main-panel {
-  position: absolute;
+  position: fixed;
   top: 90px;
   left: 260px;
   right: 20px;
@@ -96,14 +97,30 @@ body::before {
   overflow: hidden;
 }
 
-/* MAP CONTAINER */
+/* MAP PANEL — SMALL PANEL INSIDE MAIN */
+#map-panel {
+  width: 100%;
+  height: 300px; /* EXACT SIZE LIKE YOUR PHOTO */
+  margin-bottom: 20px;
+  border-radius: 22px;
+  overflow: hidden;
+}
+
+/* MAP ITSELF */
 #map {
   width: 100%;
   height: 100%;
-  border-radius: 22px;
 }
 
-/* HIDDEN PANELS */
+/* CONTENT PANEL BELOW MAP */
+#content-panel {
+  width: 100%;
+  height: calc(100% - 320px);
+  border-radius: 22px;
+  padding: 20px;
+  overflow-y: auto;
+}
+
 .hidden {
   display: none;
 }
@@ -116,54 +133,34 @@ body::before {
 <div class="sidebar glass">
   <h2>Dispatch</h2>
 
-  <a onclick="showPanel('map-panel')">Map</a>
-  <a onclick="showPanel('active-panel')">Active Jobs</a>
-  <a onclick="showPanel('pending-panel')">Pending Jobs</a>
-  <a onclick="showPanel('completed-panel')">Completed Jobs</a>
-  <a onclick="showPanel('tech-panel')">Technicians</a>
-  <a onclick="showPanel('settings-panel')">Settings</a>
+  <a onclick="showPanel('map')">Map</a>
+  <a onclick="showPanel('active')">Active Jobs</a>
+  <a onclick="showPanel('pending')">Pending Jobs</a>
+  <a onclick="showPanel('completed')">Completed Jobs</a>
+  <a onclick="showPanel('techs')">Technicians</a>
+  <a onclick="showPanel('settings')">Settings</a>
 </div>
 
-<!-- TOP BAR WITH TIME + DATE -->
+<!-- TOP BAR -->
 <div class="topbar glass">
   <span id="datetime"></span>
 </div>
 
-<!-- MAIN PANEL (ONLY ONE VISIBLE AT A TIME) -->
+<!-- MAIN PANEL -->
 <div class="main-panel glass">
 
-  <!-- MAP PANEL -->
-  <div id="map-panel">
+  <!-- MAP PANEL (SMALL PANEL AT TOP) -->
+  <div id="map-panel" class="glass">
     <div id="map"></div>
   </div>
 
-  <!-- ACTIVE JOBS -->
-  <div id="active-panel" class="hidden">
-    <h2>Active Jobs</h2>
-    <div id="jobs-list"></div>
-  </div>
-
-  <!-- PENDING JOBS -->
-  <div id="pending-panel" class="hidden">
-    <h2>Pending Jobs</h2>
-    <div id="pending-list"></div>
-  </div>
-
-  <!-- COMPLETED JOBS -->
-  <div id="completed-panel" class="hidden">
-    <h2>Completed Jobs</h2>
-    <div id="completed-list"></div>
-  </div>
-
-  <!-- TECHNICIANS -->
-  <div id="tech-panel" class="hidden">
-    <h2>Technicians</h2>
-    <div id="tech-list"></div>
-  </div>
-
-  <!-- SETTINGS -->
-  <div id="settings-panel" class="hidden">
-    <h2>Settings</h2>
+  <!-- CONTENT PANEL BELOW MAP -->
+  <div id="content-panel" class="glass">
+    <div id="active" class="panel">Active Jobs</div>
+    <div id="pending" class="panel hidden">Pending Jobs</div>
+    <div id="completed" class="panel hidden">Completed Jobs</div>
+    <div id="techs" class="panel hidden">Technicians</div>
+    <div id="settings" class="panel hidden">Settings</div>
   </div>
 
 </div>
@@ -172,10 +169,10 @@ body::before {
 </html>
 <script>
 
-// LOCAL VARIABLES
-const SUPABASE_URL = "YOUR_SUPABASE_URL";
-const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
-const MAPBOX_TOKEN = "YOUR_MAPBOX_TOKEN";
+// LOCAL VARS
+const SUPABASE_URL = "https://gsneugdwoxpibajghwge.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzbmV1Z2R3b3hwaWJhamdod2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNjk2NjUsImV4cCI6MjA5Mzg0NTY2NX0.wmZDgY_fAfeiDlZzWLA4KT5_dlbyG7Ns1W4z_HZH8Ws";
+const MAPBOX_TOKEN = "sk.eyJ1IjoicGx1c2gtaW50ZW50aW9ucyIsImEiOiJjbW9ocHBuZnQwNGJuMnBwdmg3eWpxcDNrIn0.2LdI9gv7-QqH5rmSpQ4mcQ";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -190,68 +187,24 @@ setInterval(updateDateTime, 1000);
 updateDateTime();
 
 /* PANEL SWITCHING */
-function showPanel(panelId) {
-  const panels = [
-    "map-panel",
-    "active-panel",
-    "pending-panel",
-    "completed-panel",
-    "tech-panel",
-    "settings-panel"
-  ];
+function showPanel(panel) {
+  const panels = ["active", "pending", "completed", "techs", "settings"];
   panels.forEach(id => {
     document.getElementById(id).classList.add("hidden");
   });
-  document.getElementById(panelId).classList.remove("hidden");
+  document.getElementById(panel).classList.remove("hidden");
 }
 
-/* MAP */
+/* MAP LOADS IMMEDIATELY */
 let map;
 function loadMap() {
   map = new mapboxgl.Map({
     container: "map",
     style: "mapbox://styles/mapbox/streets-v11",
-    center: [-84.56, 39.92], // Springfield OH
+    center: [-84.56, 39.92],
     zoom: 11
   });
 }
 loadMap();
-
-/* LOAD JOBS */
-async function loadJobs() {
-  const { data } = await supabaseClient.from("jobs").select("*");
-  const active = document.getElementById("jobs-list");
-  const pending = document.getElementById("pending-list");
-  const completed = document.getElementById("completed-list");
-
-  active.innerHTML = "";
-  pending.innerHTML = "";
-  completed.innerHTML = "";
-
-  data.forEach(job => {
-    const div = document.createElement("div");
-    div.innerHTML = `<p><strong>${job.title}</strong> — ${job.status}</p>`;
-
-    if (job.status === "active") active.appendChild(div);
-    if (job.status === "pending") pending.appendChild(div);
-    if (job.status === "completed") completed.appendChild(div);
-  });
-}
-
-/* LOAD TECHS */
-async function loadTechs() {
-  const { data } = await supabaseClient.from("technicians").select("*");
-  const container = document.getElementById("tech-list");
-  container.innerHTML = "";
-  data.forEach(tech => {
-    const div = document.createElement("div");
-    div.innerHTML = `<p><strong>${tech.name}</strong> — ${tech.status}</p>`;
-    container.appendChild(div);
-  });
-}
-
-/* INITIAL LOAD */
-loadJobs();
-loadTechs();
 
 </script>
