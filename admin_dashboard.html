@@ -3,7 +3,10 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Dispatch Dashboard</title>
+<title>Plushintentions Dashboard</title>
+
+<!-- ICONS -->
+<script src="https://unpkg.com/feather-icons"></script>
 
 <style>
 
@@ -18,7 +21,6 @@
 /* BACKGROUND */
 body {
   background: url('background.png') center/cover no-repeat fixed;
-  position: relative;
   color: #fff;
   overflow: hidden;
 }
@@ -33,13 +35,13 @@ body::before {
   z-index: -10;
 }
 
-/* GLASS STYLE — MORE SEE THROUGH */
+/* ULTRA TRANSPARENT GLASS */
 .glass {
-  background: rgba(255,255,255,0.12); /* MORE TRANSPARENT */
-  backdrop-filter: blur(22px);
-  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(255,255,255,0.06);
+  backdrop-filter: blur(26px);
+  border: 1px solid rgba(255,255,255,0.14);
   border-radius: 22px;
-  box-shadow: 0 6px 28px rgba(0,0,0,0.28);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.22);
 }
 
 /* SIDEBAR */
@@ -54,11 +56,41 @@ body::before {
   flex-direction: column;
   z-index: 20;
 }
-.sidebar h2 {
-  font-size: 22px;
+
+/* BRAND */
+.brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   margin-bottom: 30px;
 }
+
+.brand-logo {
+  width: 120px;
+  height: auto;
+  margin-bottom: 10px;
+}
+
+/* NEON GLOW */
+.neon-logo {
+  filter: drop-shadow(0 0 10px #00eaff)
+          drop-shadow(0 0 20px #00eaff)
+          drop-shadow(0 0 30px #00eaff);
+}
+
+.brand-title {
+  font-size: 20px;
+  font-weight: 600;
+  text-align: center;
+  color: #fff;
+  text-shadow: 0 0 6px #00eaff, 0 0 12px #00eaff;
+}
+
+/* SIDEBAR LINKS */
 .sidebar a {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: #fff;
   text-decoration: none;
   opacity: 0.85;
@@ -68,6 +100,11 @@ body::before {
 }
 .sidebar a:hover {
   opacity: 1;
+}
+
+.sidebar a i {
+  width: 20px;
+  height: 20px;
 }
 
 /* TOP BAR */
@@ -85,60 +122,99 @@ body::before {
   z-index: 20;
 }
 
-/* MAIN PANEL — FULL SCREEN */
+/* MAIN PANEL */
 .main-panel {
   position: fixed;
   top: 90px;
   left: 260px;
   right: 20px;
   bottom: 20px;
-  padding: 24px;
-  z-index: 30;
+  padding: 0;
   overflow: hidden;
+  z-index: 30;
 }
 
-/* MAP PANEL — SMALL PANEL INSIDE MAIN */
-#map-panel {
+/* PANEL CONTENT */
+.panel {
   width: 100%;
-  height: 300px; /* EXACT SIZE LIKE YOUR PHOTO */
-  margin-bottom: 20px;
+  height: 100%;
   border-radius: 22px;
   overflow: hidden;
+  padding: 20px;
 }
 
-/* MAP ITSELF */
+/* MAP */
 #map {
   width: 100%;
   height: 100%;
 }
 
-/* CONTENT PANEL BELOW MAP */
-#content-panel {
-  width: 100%;
-  height: calc(100% - 320px);
-  border-radius: 22px;
-  padding: 20px;
-  overflow-y: auto;
-}
-
+/* HIDDEN */
 .hidden {
   display: none;
 }
 
+/* LOADING OVERLAY */
+#loader {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  backdrop-filter: blur(14px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  animation: fadeOut 0.6s ease forwards;
+  animation-delay: 1.2s;
+}
+
+/* LOADING LOGO */
+.loader-logo {
+  width: 160px;
+  height: auto;
+  filter: drop-shadow(0 0 10px #00eaff)
+          drop-shadow(0 0 20px #00eaff)
+          drop-shadow(0 0 30px #00eaff);
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+/* PULSE */
+@keyframes pulse {
+  0% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+
+/* FADE OUT */
+@keyframes fadeOut {
+  to { opacity: 0; visibility: hidden; }
+}
+
 </style>
 </head>
+
 <body>
+
+<!-- LOGO LOADER -->
+<div id="loader">
+  <img src="your-logo.png" class="loader-logo" />
+</div>
 
 <!-- SIDEBAR -->
 <div class="sidebar glass">
-  <h2>Dispatch</h2>
 
-  <a onclick="showPanel('map')">Map</a>
-  <a onclick="showPanel('active')">Active Jobs</a>
-  <a onclick="showPanel('pending')">Pending Jobs</a>
-  <a onclick="showPanel('completed')">Completed Jobs</a>
-  <a onclick="showPanel('techs')">Technicians</a>
-  <a onclick="showPanel('settings')">Settings</a>
+  <div class="brand">
+    <img src="your-logo.png" class="brand-logo neon-logo" />
+    <h2 class="brand-title">Plushintentions</h2>
+  </div>
+
+  <a onclick="showPanel('map-panel')"><i data-feather="map"></i> Map</a>
+  <a onclick="showPanel('active-panel')"><i data-feather="briefcase"></i> Active Jobs</a>
+  <a onclick="showPanel('pending-panel')"><i data-feather="clock"></i> Pending Jobs</a>
+  <a onclick="showPanel('completed-panel')"><i data-feather="check-circle"></i> Completed Jobs</a>
+  <a onclick="showPanel('tech-panel')"><i data-feather="users"></i> Technicians</a>
+  <a onclick="showPanel('settings-panel')"><i data-feather="settings"></i> Settings</a>
+
 </div>
 
 <!-- TOP BAR -->
@@ -149,30 +225,44 @@ body::before {
 <!-- MAIN PANEL -->
 <div class="main-panel glass">
 
-  <!-- MAP PANEL (SMALL PANEL AT TOP) -->
-  <div id="map-panel" class="glass">
+  <!-- DEFAULT PANEL = MAP -->
+  <div id="map-panel" class="panel">
     <div id="map"></div>
   </div>
 
-  <!-- CONTENT PANEL BELOW MAP -->
-  <div id="content-panel" class="glass">
-    <div id="active" class="panel">Active Jobs</div>
-    <div id="pending" class="panel hidden">Pending Jobs</div>
-    <div id="completed" class="panel hidden">Completed Jobs</div>
-    <div id="techs" class="panel hidden">Technicians</div>
-    <div id="settings" class="panel hidden">Settings</div>
+  <!-- OTHER PANELS -->
+  <div id="active-panel" class="panel hidden">
+    <h2>Active Jobs</h2>
+    <div id="jobs-list"></div>
+  </div>
+
+  <div id="pending-panel" class="panel hidden">
+    <h2>Pending Jobs</h2>
+    <div id="pending-list"></div>
+  </div>
+
+  <div id="completed-panel" class="panel hidden">
+    <h2>Completed Jobs</h2>
+    <div id="completed-list"></div>
+  </div>
+
+  <div id="tech-panel" class="panel hidden">
+    <h2>Technicians</h2>
+    <div id="tech-list"></div>
+  </div>
+
+  <div id="settings-panel" class="panel hidden">
+    <h2>Settings</h2>
   </div>
 
 </div>
 
-</body>
-</html>
 <script>
 
 // LOCAL VARS
-const SUPABASE_URL = "https://gsneugdwoxpibajghwge.supabase.co";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzbmV1Z2R3b3hwaWJhamdod2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNjk2NjUsImV4cCI6MjA5Mzg0NTY2NX0.wmZDgY_fAfeiDlZzWLA4KT5_dlbyG7Ns1W4z_HZH8Ws";
-const MAPBOX_TOKEN = "sk.eyJ1IjoicGx1c2gtaW50ZW50aW9ucyIsImEiOiJjbW9ocHBuZnQwNGJuMnBwdmg3eWpxcDNrIn0.2LdI9gv7-QqH5rmSpQ4mcQ";
+const SUPABASE_URL = "YOUR_SUPABASE_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY";
+const MAPBOX_TOKEN = "YOUR_MAPBOX_TOKEN";
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 mapboxgl.accessToken = MAPBOX_TOKEN;
@@ -187,15 +277,28 @@ setInterval(updateDateTime, 1000);
 updateDateTime();
 
 /* PANEL SWITCHING */
-function showPanel(panel) {
-  const panels = ["active", "pending", "completed", "techs", "settings"];
+function showPanel(panelId) {
+  const panels = [
+    "map-panel",
+    "active-panel",
+    "pending-panel",
+    "completed-panel",
+    "tech-panel",
+    "settings-panel"
+  ];
+
   panels.forEach(id => {
     document.getElementById(id).classList.add("hidden");
   });
-  document.getElementById(panel).classList.remove("hidden");
+
+  document.getElementById(panelId).classList.remove("hidden");
+
+  if (panelId === "map-panel") {
+    setTimeout(() => map.resize(), 200);
+  }
 }
 
-/* MAP LOADS IMMEDIATELY */
+/* MAP LOAD */
 let map;
 function loadMap() {
   map = new mapboxgl.Map({
@@ -207,4 +310,54 @@ function loadMap() {
 }
 loadMap();
 
+/* LOADER */
+window.onload = () => {
+  setTimeout(() => {
+    document.getElementById("loader").style.display = "none";
+  }, 1800);
+};
+
+/* LOAD JOBS */
+async function loadJobs() {
+  const { data } = await supabaseClient.from("jobs").select("*");
+  const active = document.getElementById("jobs-list");
+  const pending = document.getElementById("pending-list");
+  const completed = document.getElementById("completed-list");
+
+  active.innerHTML = "";
+  pending.innerHTML = "";
+  completed.innerHTML = "";
+
+  data.forEach(job => {
+    const div = document.createElement("div");
+    div.innerHTML = `<p><strong>${job.title}</strong> — ${job.status}</p>`;
+
+    if (job.status === "active") active.appendChild(div);
+    if (job.status === "pending") pending.appendChild(div);
+    if (job.status === "completed") completed.appendChild(div);
+  });
+}
+
+/* LOAD TECHS */
+async function loadTechs() {
+  const { data } = await supabaseClient.from("technicians").select("*");
+  const container = document.getElementById("tech-list");
+  container.innerHTML = "";
+  data.forEach(tech => {
+    const div = document.createElement("div");
+    div.innerHTML = `<p><strong>${tech.name}</strong> — ${tech.status}</p>`;
+    container.appendChild(div);
+  });
+}
+
+/* INITIAL LOAD */
+loadJobs();
+loadTechs();
+
+/* ACTIVATE ICONS */
+feather.replace();
+
 </script>
+
+</body>
+</html>
