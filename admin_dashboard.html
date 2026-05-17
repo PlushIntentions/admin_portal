@@ -17,13 +17,13 @@
 
 /* FULLSCREEN BACKGROUND PHOTO */
 body {
-  background: url('/background.png') center/cover no-repeat fixed;
+  background: url('background.png') center/cover no-repeat fixed;
   position: relative;
   color: #fff;
   overflow: hidden;
 }
 
-/* DARK OVERLAY FOR CONTRAST */
+/* DARK OVERLAY */
 body::before {
   content: "";
   position: fixed;
@@ -33,6 +33,19 @@ body::before {
   z-index: -1;
 }
 
+/* UNIVERSAL GLASS PANEL STYLE */
+.sidebar,
+.topbar,
+.card,
+.modal,
+.assign-modal {
+  background: rgba(255,255,255,0.22); /* updated opacity */
+  backdrop-filter: blur(22px);
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 22px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
+}
+
 /* SIDEBAR */
 .sidebar {
   position: fixed;
@@ -40,14 +53,10 @@ body::before {
   left: 0;
   width: 240px;
   height: 100vh;
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(22px);
-  border-right: 1px solid rgba(255,255,255,0.25);
   padding: 24px;
   display: flex;
   flex-direction: column;
   z-index: 20;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
 }
 
 .sidebar h2 {
@@ -74,14 +83,10 @@ body::before {
   left: 240px;
   right: 0;
   height: 70px;
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(22px);
-  border-bottom: 1px solid rgba(255,255,255,0.25);
   display: flex;
   align-items: center;
   padding: 0 24px;
   z-index: 19;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
 }
 
 .topbar h1 {
@@ -100,15 +105,10 @@ body::before {
   overflow-y: auto;
 }
 
-/* FLOATING CARDS */
+/* CARDS */
 .card {
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(22px);
-  border-radius: 22px;
   padding: 22px;
-  border: 1px solid rgba(255,255,255,0.25);
   margin-bottom: 20px;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
 }
 
 /* MODAL OVERLAY */
@@ -137,16 +137,11 @@ body::before {
   max-width: 95%;
   max-height: 90vh;
   transform: translate(-50%, -50%) scale(0.92);
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(22px);
-  border-radius: 22px;
-  border: 1px solid rgba(255,255,255,0.25);
   padding: 28px;
   overflow-y: auto;
   opacity: 0;
   transition: all 0.25s ease;
   z-index: 201;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
 }
 
 .modal.active {
@@ -201,7 +196,7 @@ body::before {
 }
 
 .activity-item {
-  background: rgba(255,255,255,0.15);
+  background: rgba(255,255,255,0.18);
   backdrop-filter: blur(12px);
   border-radius: 16px;
   padding: 14px 18px;
@@ -240,16 +235,11 @@ body::before {
   max-width: 95%;
   max-height: 80vh;
   transform: translate(-50%, -50%) scale(0.92);
-  background: rgba(255,255,255,0.12);
-  backdrop-filter: blur(22px);
-  border-radius: 22px;
-  border: 1px solid rgba(255,255,255,0.25);
   padding: 24px;
   overflow-y: auto;
   opacity: 0;
   transition: all 0.25s ease;
   z-index: 202;
-  box-shadow: 0 8px 32px rgba(0,0,0,0.35);
 }
 
 .assign-modal.active {
@@ -259,7 +249,6 @@ body::before {
 
 </style>
 </head>
-
 <body>
 
 <div class="sidebar">
@@ -323,67 +312,168 @@ body::before {
 
 </body>
 </html>
+<script>
 
-<body>
+const SUPABASE_URL = window.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = window.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+const MAPBOX_TOKEN = window.NEXT_PUBLIC_MAPBOX_TOKEN;
 
-<div class="sidebar">
-  <h2>Dispatch</h2>
-  <a href="#">Dashboard</a>
-  <a href="#">Jobs</a>
-  <a href="#">Technicians</a>
-  <a href="#">Settings</a>
-</div>
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+mapboxgl.accessToken = MAPBOX_TOKEN;
 
-<div class="topbar">
-  <h1>Dashboard</h1>
-</div>
+let currentJobId = null;
 
-<div class="main">
+/* LOAD JOBS */
+async function loadJobs() {
+  const { data } = await supabaseClient.from("jobs").select("*").order("created_at", { ascending: false });
+  const container = document.getElementById("jobs-list");
+  container.innerHTML = "";
+  data.forEach(job => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.style.cursor = "pointer";
+    div.innerHTML = `<h3>${job.title}</h3><p>${job.address}</p><p>Status: ${job.status}</p>`;
+    div.onclick = () => openJobModal(job.id);
+    container.appendChild(div);
+  });
+}
 
-  <div class="card">
-    <h2>Active Jobs</h2>
-    <div id="jobs-list"></div>
-  </div>
+/* LOAD TECHS */
+async function loadTechs() {
+  const { data } = await supabaseClient.from("technicians").select("*");
+  const container = document.getElementById("tech-list");
+  container.innerHTML = "";
+  data.forEach(tech => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.innerHTML = `<h3>${tech.name}</h3><p>${tech.status}</p>`;
+    container.appendChild(div);
+  });
+}
 
-  <div class="card">
-    <h2>Technicians</h2>
-    <div id="tech-list"></div>
-  </div>
+/* OPEN JOB MODAL */
+async function openJobModal(jobId) {
+  currentJobId = jobId;
+  document.getElementById("modal-overlay").classList.add("active");
+  document.getElementById("job-modal").classList.add("active");
+  loadJobDetails(jobId);
+  loadTimeline(jobId);
+  loadActivity(jobId);
+  loadAssignedTech(jobId);
+}
 
-</div>
+/* CLOSE JOB MODAL */
+function closeJobModal() {
+  document.getElementById("modal-overlay").classList.remove("active");
+  document.getElementById("job-modal").classList.remove("active");
+}
 
-<div id="modal-overlay" class="modal-overlay"></div>
+/* JOB DETAILS */
+async function loadJobDetails(jobId) {
+  const { data } = await supabaseClient.from("jobs").select("*").eq("id", jobId).single();
+  document.getElementById("job-title").innerText = data.title;
+  document.getElementById("job-info").innerHTML = `
+    <p><strong>Address:</strong> ${data.address}</p>
+    <p><strong>Status:</strong> ${data.status}</p>
+    <p><strong>Description:</strong> ${data.description || "None"}</p>
+  `;
+}
 
-<div id="job-modal" class="modal">
-  <div class="modal-close" onclick="closeJobModal()">✕</div>
+/* TIMELINE */
+async function loadTimeline(jobId) {
+  const { data } = await supabaseClient.from("job_timeline").select("*").eq("job_id", jobId).order("created_at", { ascending: true });
+  const container = document.getElementById("timeline");
+  container.innerHTML = "";
+  data.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "timeline-item";
+    div.innerHTML = `<strong>${item.status}</strong><br><span style="opacity:0.7">${new Date(item.created_at).toLocaleString()}</span>`;
+    container.appendChild(div);
+  });
+}
 
-  <h2 id="job-title">Job Details</h2>
+/* ACTIVITY FEED */
+async function loadActivity(jobId) {
+  const { data } = await supabaseClient.from("job_activity").select("*").eq("job_id", jobId).order("created_at", { ascending: false });
+  const container = document.getElementById("activity-feed");
+  container.innerHTML = "";
+  data.forEach(item => {
+    const div = document.createElement("div");
+    div.className = "activity-item";
+    div.innerHTML = `
+      <h4>${item.title}</h4>
+      <p>${item.details}</p>
+      <p style="opacity:0.6;font-size:12px;margin-top:6px;">${new Date(item.created_at).toLocaleString()}</p>
+    `;
+    container.appendChild(div);
+  });
+}
 
-  <div id="job-info"></div>
+/* ASSIGNED TECH */
+async function loadAssignedTech(jobId) {
+  const { data } = await supabaseClient.from("jobs").select("assigned_tech, technicians(name)").eq("id", jobId).single();
+  const container = document.getElementById("assigned-tech");
+  if (!data.assigned_tech) {
+    container.innerHTML = `<p>No technician assigned.</p>`;
+    return;
+  }
+  container.innerHTML = `<p><strong>Assigned Technician:</strong> ${data.technicians.name}</p>`;
+}
 
-  <h3>Status Timeline</h3>
-  <div id="timeline" class="timeline"></div>
+/* OPEN ASSIGN MODAL */
+async function openAssignModal() {
+  document.getElementById("assign-modal").classList.add("active");
+  const { data } = await supabaseClient.from("technicians").select("*");
+  const container = document.getElementById("assign-tech-list");
+  container.innerHTML = "";
+  data.forEach(tech => {
+    const div = document.createElement("div");
+    div.className = "card";
+    div.style.cursor = "pointer";
+    div.innerHTML = `<h3>${tech.name}</h3><p>Status: ${tech.status}</p>`;
+    div.onclick = () => assignTech(tech.id);
+    container.appendChild(div);
+  });
+}
 
-  <h3>Activity Feed</h3>
-  <div id="activity-feed" class="activity-feed"></div>
+/* CLOSE ASSIGN MODAL */
+function closeAssignModal() {
+  document.getElementById("assign-modal").classList.remove("active");
+}
 
-  <h3>Technician</h3>
-  <div id="assigned-tech"></div>
+/* ASSIGN TECH */
+async function assignTech(techId) {
+  if (!currentJobId) return;
+  await supabaseClient.from("jobs").update({ assigned_tech: techId }).eq("id", currentJobId);
+  closeAssignModal();
+  loadAssignedTech(currentJobId);
+}
 
-  <button onclick="openAssignModal()" style="margin-top:20px;padding:10px 16px;border-radius:10px;border:none;background:#00eaff;color:#000;font-weight:600;cursor:pointer;">
-    Assign Technician
-  </button>
+/* REAL-TIME SUBSCRIPTIONS */
+supabaseClient.channel("jobs-changes")
+  .on("postgres_changes", { event: "*", schema: "public", table: "jobs" }, payload => {
+    loadJobs();
+    if (payload.new.id === currentJobId) {
+      loadJobDetails(currentJobId);
+      loadAssignedTech(currentJobId);
+    }
+  })
+  .subscribe();
 
-</div>
+supabaseClient.channel("timeline-changes")
+  .on("postgres_changes", { event: "*", schema: "public", table: "job_timeline" }, payload => {
+    if (payload.new.job_id === currentJobId) loadTimeline(currentJobId);
+  })
+  .subscribe();
 
-<div id="assign-modal" class="assign-modal">
-  <div class="modal-close" onclick="closeAssignModal()">✕</div>
+supabaseClient.channel("activity-changes")
+  .on("postgres_changes", { event: "*", schema: "public", table: "job_activity" }, payload => {
+    if (payload.new.job_id === currentJobId) loadActivity(currentJobId);
+  })
+  .subscribe();
 
-  <h2>Assign Technician</h2>
+/* INITIAL LOAD */
+loadJobs();
+loadTechs();
 
-  <div id="assign-tech-list"></div>
-
-</div>
-
-</body>
-</html>
+</script>
