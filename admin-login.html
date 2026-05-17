@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Login – Plush Intentions</title>
+
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+
+  <!-- Supabase -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Inter, sans-serif;
+      background: #0F0F0F;
+      color: white;
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .container {
+      display: flex;
+      width: 100%;
+    }
+
+    /* LEFT PANEL */
+    .left-panel {
+      width: 40%;
+      background: linear-gradient(180deg, #E8A7C8, #F5C15C);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      padding: 40px;
+    }
+
+    .left-panel img {
+      width: 180px;
+      margin-bottom: 20px;
+    }
+
+    .left-panel h1 {
+      font-family: "Playfair Display", serif;
+      font-size: 32px;
+      text-align: center;
+      color: #0F0F0F;
+    }
+
+    /* RIGHT PANEL */
+    .right-panel {
+      width: 60%;
+      padding: 60px;
+      background: #0F0F0F;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card {
+      background: #1A1A1A;
+      padding: 40px;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 420px;
+      box-shadow: 0 0 20px rgba(245, 193, 92, 0.15);
+    }
+
+    h2 {
+      font-family: "Playfair Display", serif;
+      margin-bottom: 20px;
+      text-align: center;
+    }
+
+    label {
+      display: block;
+      margin-top: 20px;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: #E8A7C8;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 8px;
+      border: none;
+      background: #2A2A2A;
+      color: white;
+      font-size: 14px;
+    }
+
+    button {
+      margin-top: 30px;
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 10px;
+      background: linear-gradient(90deg, #E8A7C8, #F5C15C);
+      color: #0F0F0F;
+      font-weight: bold;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    .error {
+      margin-top: 15px;
+      color: #FF7C7C;
+      text-align: center;
+      font-size: 14px;
+    }
+
+    @media (max-width: 900px) {
+      .left-panel { display: none; }
+      .right-panel { width: 100%; padding: 20px; }
+      .card { padding: 25px; }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="container">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <img src="/logo.png" alt="Plush Intentions Logo">
+    <h1>Admin Access</h1>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="card">
+
+      <h2>Admin Login</h2>
+
+      <form id="adminLoginForm">
+        <label>Email</label>
+        <input id="email" type="email" required>
+
+        <label>Password</label>
+        <input id="password" type="password" required>
+
+        <button type="submit">Login</button>
+
+        <p id="errorMsg" class="error"></p>
+      </form>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const supabaseClient = supabase.createClient(
+    "https://gsneugdwoxpibajghwge.supabase.co",
+    "sb-publishable-bbsF43-TXGgEumRGflGf5A_apC1dP3T"
+  );
+
+  document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const errorMsg = document.getElementById("errorMsg");
+    errorMsg.textContent = "";
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      errorMsg.textContent = "Invalid admin credentials";
+      return;
+    }
+
+    // OPTIONAL: Check if user is admin
+    const { data: profile } = await supabaseClient
+      .from("admins")
+      .select("*")
+      .eq("email", email)
+      .single();
+
+    if (!profile) {
+      errorMsg.textContent = "Access denied";
+      await supabaseClient.auth.signOut();
+      return;
+    }
+
+    window.location.href = "admin-dashboard.html";
+  });
+</script>
+
+</body>
+</html>
