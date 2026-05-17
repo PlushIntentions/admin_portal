@@ -301,7 +301,6 @@ body::before {
   </div>
 
 </div>
-
 <script>
 
 // GLOBALS
@@ -313,13 +312,13 @@ let techMarkers = {};
 function initSupabase() {
   supabaseClient = supabase.createClient(
     "https://gsneugdwoxpibajghwge.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzbmV1Z2R3b3hwaWJhamdod2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNjk2NjUsImV4cCI6MjA5Mzg0NTY2NX0.wmZDgY_fAfeiDlZzWLA4KT5_dlbyG7Ns1W4z_HZH8Ws"
+    "YOUR_SUPABASE_ANON_KEY"
   );
 }
 
 // LOAD MAP
 function loadMap() {
-  mapboxgl.accessToken = "pk.eyJ1IjoicGx1c2gtaW50ZW50aW9ucyIsImEiOiJjbXAwNXEydWoxNDdjNDhva2tjc3puMzE4In0.RuR9Ze9VVEXFsy1jFy9X1g";
+  mapboxgl.accessToken = "YOUR_MAPBOX_KEY";
 
   map = new mapboxgl.Map({
     container: "map",
@@ -353,6 +352,10 @@ function showPanel(panelId) {
   if (panelId === "map-panel" && map) {
     setTimeout(() => map.resize(), 200);
   }
+
+  if (panelId === "pending-panel") {
+    loadPendingJobs();
+  }
 }
 
 // GREETING
@@ -374,7 +377,6 @@ function updateGreeting() {
 function updateTechMarker(tech) {
   if (!tech.lat || !tech.lng) return;
 
-  // Create marker if missing
   if (!techMarkers[tech.id]) {
     const el = document.createElement("div");
     el.className = "tech-marker";
@@ -391,7 +393,6 @@ function updateTechMarker(tech) {
     return;
   }
 
-  // Smooth movement
   const marker = techMarkers[tech.id];
   const start = marker.getLngLat();
   const end = { lng: tech.lng, lat: tech.lat };
@@ -431,6 +432,108 @@ async function liveTrackTechs() {
 
 setInterval(liveTrackTechs, 3000);
 liveTrackTechs();
+
+/* -----------------------------
+   PENDING JOBS SYSTEM (ADDED)
+------------------------------*/
+
+// Load pending jobs
+async function loadPendingJobs() {
+  const { data, error } = await supabaseClient
+    .from("jobs")
+    .select(`
+      id,
+      title,
+      status,
+      client_id,
+      clients ( name, address ),
+      technician_id,
+      technicians ( name )
+    `)
+    .eq("status", "pending")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Error loading pending jobs:", error);
+    return;
+  }
+
+  renderPendingJobs(data);
+}
+
+// Render pending jobs
+function renderPendingJobs(jobs) {
+  const container = document.getElementById("pending-list");
+  container.innerHTML = "";
+
+  jobs.forEach(job => {
+    const div = document.createElement("div");
+    div.className = "glass";
+    div.style.padding = "16px";
+    div.style.marginBottom = "12px";
+
+    div.innerHTML = `
+      <h3>${job.title}</h3>
+      <p><strong>Client:</strong> ${job.clients?.name || "Unknown"}</p>
+      <p><strong>Address:</strong> ${job.clients?.address || "Unknown"}</p>
+
+      <label>Select Technician:</label>
+      <select id="tech-${job.id}" style="margin-left:10px; padding:4px;"></select>
+
+      <button style="margin-left:10px; padding:6px 12px; background:var(--brand); border:none; border-radius:6px; color:white;"
+        onclick="assignJob('${job.id}', document.getElementById('tech-${job.id}').value)">
+        Assign
+      </button>
+    `;
+
+    container.appendChild(div);
+
+    loadTechniciansIntoDropdown(`tech-${job.id}`);
+  });
+}
+
+// Load technicians into dropdown
+async function loadTechniciansIntoDropdown(selectId) {
+  const { data, error } = await supabaseClient
+    .from("technicians")
+    .select("user_id, name")
+    .order("name", { ascending: true });
+
+  if (error) {
+    console.error("Tech dropdown error:", error);
+    return;
+  }
+
+  const select = document.getElementById(selectId);
+  select.innerHTML = "";
+
+  data.forEach(t => {
+    const opt = document.createElement("option");
+    opt.value = t.user_id;
+    opt.textContent = t.name;
+    select.appendChild(opt);
+  });
+}
+
+// Assign job
+async function assignJob(jobId, techId) {
+  const { error } = await supabaseClient
+    .from("jobs")
+    .update({
+      technician_id: techId,
+      status: "active",
+      start_time: new Date().toISOString()
+    })
+    .eq("id", jobId);
+
+  if (error) {
+    console.error("Assign error:", error);
+    alert("Failed to assign job");
+    return;
+  }
+
+  loadPendingJobs();
+}
 
 // LOADER
 window.addEventListener("load", () => {
