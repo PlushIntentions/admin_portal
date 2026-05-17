@@ -312,13 +312,13 @@ let techMarkers = {};
 function initSupabase() {
   supabaseClient = supabase.createClient(
     "https://gsneugdwoxpibajghwge.supabase.co",
-    "YOUR_SUPABASE_ANON_KEY"
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdzbmV1Z2R3b3hwaWJhamdod2dlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzgyNjk2NjUsImV4cCI6MjA5Mzg0NTY2NX0.wmZDgY_fAfeiDlZzWLA4KT5_dlbyG7Ns1W4z_HZH8Ws"
   );
 }
 
 // LOAD MAP
 function loadMap() {
-  mapboxgl.accessToken = "YOUR_MAPBOX_KEY";
+  mapboxgl.accessToken = "sk.eyJ1IjoicGx1c2gtaW50ZW50aW9ucyIsImEiOiJjbW9ocHBuZnQwNGJuMnBwdmg3eWpxcDNrIn0.2LdI9gv7-QqH5rmSpQ4mcQ";
 
   map = new mapboxgl.Map({
     container: "map",
