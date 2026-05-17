@@ -19,7 +19,7 @@
 
 /* BRAND COLOR */
 :root {
-  --brand: #FF4F9F; /* extracted from your logo */
+  --brand: #FF4F9F;
 }
 
 /* RESET */
@@ -202,6 +202,41 @@ body::before {
   to { opacity: 0; visibility: hidden; }
 }
 
+/* LIVE TECH MARKER */
+.tech-marker {
+  width: 26px;
+  height: 26px;
+  background: var(--brand);
+  border-radius: 50%;
+  box-shadow:
+    0 0 10px var(--brand),
+    0 0 20px var(--brand),
+    0 0 30px var(--brand);
+  animation: techPulse 1.4s infinite ease-in-out;
+}
+
+@keyframes techPulse {
+  0% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.85; }
+}
+
+/* TECH NAME LABEL */
+.tech-label {
+  position: absolute;
+  top: -28px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 8px;
+  background: rgba(0,0,0,0.55);
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  color: #fff;
+  text-shadow: 0 0 6px var(--brand);
+  pointer-events: none;
+}
+
 </style>
 </head>
 
@@ -272,6 +307,7 @@ body::before {
 // GLOBALS
 let map;
 let supabaseClient;
+let techMarkers = {};
 
 // INIT SUPABASE
 function initSupabase() {
@@ -333,6 +369,68 @@ function updateGreeting() {
   document.getElementById("greeting").innerText =
     `Hello, Shevis. It’s ${date}. Ready to get started today.`;
 }
+
+// LIVE TECH MARKER UPDATE
+function updateTechMarker(tech) {
+  if (!tech.lat || !tech.lng) return;
+
+  // Create marker if missing
+  if (!techMarkers[tech.id]) {
+    const el = document.createElement("div");
+    el.className = "tech-marker";
+
+    const label = document.createElement("div");
+    label.className = "tech-label";
+    label.innerText = tech.name;
+    el.appendChild(label);
+
+    techMarkers[tech.id] = new mapboxgl.Marker(el)
+      .setLngLat([tech.lng, tech.lat])
+      .addTo(map);
+
+    return;
+  }
+
+  // Smooth movement
+  const marker = techMarkers[tech.id];
+  const start = marker.getLngLat();
+  const end = { lng: tech.lng, lat: tech.lat };
+
+  let progress = 0;
+  const duration = 1000;
+
+  function animate() {
+    progress += 16;
+
+    const t = Math.min(progress / duration, 1);
+
+    const lng = start.lng + (end.lng - start.lng) * t;
+    const lat = start.lat + (end.lat - start.lat) * t;
+
+    marker.setLngLat([lng, lat]);
+
+    if (t < 1) requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+}
+
+// LIVE TRACKING POLLER
+async function liveTrackTechs() {
+  const { data, error } = await supabaseClient
+    .from("technicians")
+    .select("id, name, lat, lng");
+
+  if (error) {
+    console.error("Tech tracking error:", error);
+    return;
+  }
+
+  data.forEach(tech => updateTechMarker(tech));
+}
+
+setInterval(liveTrackTechs, 3000);
+liveTrackTechs();
 
 // LOADER
 window.addEventListener("load", () => {
