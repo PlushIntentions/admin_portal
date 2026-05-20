@@ -158,39 +158,45 @@
     "sb-publishable-bbsF43-TXGgEumRGflGf5A_apC1dP3T"
   );
 
-  document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
-    e.preventDefault();
+document.getElementById("adminLoginForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
-    const errorMsg = document.getElementById("errorMsg");
-    errorMsg.textContent = "";
+  const email = document.getElementById("email").value.trim();
+  const password = document.getElementById("password").value.trim();
+  const errorMsg = document.getElementById("errorMsg");
+  errorMsg.textContent = "";
 
-    const { data, error } = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
-
-    if (error) {
-      errorMsg.textContent = "Invalid admin credentials";
-      return;
-    }
-
-    // OPTIONAL: Check if user is admin
-    const { data: profile } = await supabaseClient
-      .from("admins")
-      .select("*")
-      .eq("email", email)
-      .single();
-
-    if (!profile) {
-      errorMsg.textContent = "Access denied";
-      await supabaseClient.auth.signOut();
-      return;
-    }
-
-    window.location.href = "admin-dashboard.html";
+  // Supabase Auth login
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email,
+    password
   });
+
+  if (error) {
+    errorMsg.textContent = "Invalid admin credentials";
+    return;
+  }
+
+  // OPTIONAL: Check if user is in admins table
+  const { data: profile } = await supabaseClient
+    .from("admins")
+    .select("*")
+    .eq("email", email)
+    .single();
+
+  if (!profile) {
+    errorMsg.textContent = "Access denied";
+    await supabaseClient.auth.signOut();
+    return;
+  }
+
+  // Success → go to dashboard
+  window.location.href = "admin-dashboard.html";
+});
+
+
+
+  
 </script>
 
 </body>
