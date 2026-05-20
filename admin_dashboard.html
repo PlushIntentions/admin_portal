@@ -261,6 +261,8 @@ body::before {
   <a onclick="showPanel('completed-panel')"><i data-feather="check-circle"></i> Completed Jobs</a>
   <a onclick="showPanel('tech-panel')"><i data-feather="users"></i> Technicians</a>
   <a onclick="showPanel('settings-panel')"><i data-feather="settings"></i> Settings</a>
+  
+  <button onclick="adminLogout()">Logout</button>
 
 </div>
 
@@ -666,6 +668,27 @@ function renderActiveJobs(jobs) {
 }
 
 </script>
+
+  // -----------------------------
+// PROTECT DASHBOARD
+// -----------------------------
+async function protectDashboard() {
+  const { data } = await supabaseClient.auth.getSession();
+
+  if (!data.session) {
+    // Not logged in → send back to login
+    window.location.href = "admin-login.html";
+  }
+}
+
+protectDashboard();
+
+
+  async function adminLogout() {
+  await supabaseClient.auth.signOut();
+  window.location.href = "admin-login.html";
+}
+
 
 </body>
 </html>
