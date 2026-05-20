@@ -433,6 +433,74 @@ async function liveTrackTechs() {
 setInterval(liveTrackTechs, 3000);
 liveTrackTechs();
 
+  /* -----------------------------
+   DASHBOARD DATA STRUCTURE
+------------------------------*/
+
+let technicians = [];
+let jobs = [];
+
+// Load ALL dashboard data at once
+async function loadDashboardData() {
+  // Load technicians
+  const { data: techData, error: techErr } = await supabaseClient
+    .from("technicians")
+    .select("*");
+
+  if (techErr) console.error("Technician load error:", techErr);
+  technicians = techData || [];
+
+  // Load jobs
+  const { data: jobData, error: jobErr } = await supabaseClient
+    .from("jobs")
+    .select(`
+      id,
+      title,
+      status,
+      technician_id,
+      technicians ( name ),
+      client_id,
+      clients ( name, address ),
+      created_at,
+      start_time,
+      completed_time
+    `)
+    .order("created_at", { ascending: false });
+
+  if (jobErr) console.error("Job load error:", jobErr);
+  jobs = jobData || [];
+
+  // Render all panels
+  renderPendingJobs(jobs.filter(j => j.status === "pending"));
+  renderActiveJobs(jobs.filter(j => j.status === "active"));
+  renderCompletedJobs(jobs.filter(j => j.status === "completed"));
+  renderTechnicianPanel();
+}
+/* -----------------------------
+   TECHNICIAN PANEL
+------------------------------*/
+
+function renderTechnicianPanel() {
+  const container = document.getElementById("tech-list");
+  container.innerHTML = "";
+
+  technicians.forEach(t => {
+    const div = document.createElement("div");
+    div.className = "glass";
+    div.style.padding = "16px";
+    div.style.marginBottom = "12px";
+
+    div.innerHTML = `
+      <h3>${t.name}</h3>
+      <p><strong>ID:</strong> ${t.user_id}</p>
+      <p><strong>Status:</strong> ${t.status || "active"}</p>
+    `;
+
+    container.appendChild(div);
+  });
+}
+
+
 /* -----------------------------
    PENDING JOBS SYSTEM (ADDED)
 ------------------------------*/
@@ -541,11 +609,14 @@ window.addEventListener("load", () => {
   loadMap();
   updateGreeting();
 
+  loadDashboardData(); // ← NEW
+
   setTimeout(() => {
     document.getElementById("loader").style.display = "none";
     if (map) map.resize();
   }, 1800);
 });
+
 
 // ICONS
 feather.replace();
