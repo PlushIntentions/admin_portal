@@ -688,6 +688,11 @@ protectDashboard();
   await supabaseClient.auth.signOut();
   window.location.href = "admin-login.html";
 }
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    protectDashboard();
+  });
+</script>
 
 
 </body>
